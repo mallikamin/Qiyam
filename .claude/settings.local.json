@@ -13,7 +13,10 @@
       "Bash(git fetch:*)",
       "Bash(gh api:*)",
       "Bash(git checkout:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(npx gh-pages:*)",
+      "Bash(git ls-remote:*)",
+      "Bash(npm.cmd install:*)"
     ]
   }
 }
