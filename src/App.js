@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './App.css';
 
-// Prayer data with all components (Sunnah, Farz, Nafl, Witr)
+// Prayer data with all components
 const PRAYERS = {
   fajr: {
     name: 'Fajr',
@@ -82,10 +82,12 @@ const POSITIONS = {
   STANDING: 'standing',
   BOWING: 'bowing',
   PROSTRATING: 'prostrating',
-  SITTING: 'sitting'
+  SITTING: 'sitting',
+  SALAM_RIGHT: 'salam_right',
+  SALAM_LEFT: 'salam_left'
 };
 
-// Styles
+// Styles (kept concise)
 const styles = {
   container: {
     minHeight: '100vh',
@@ -95,41 +97,20 @@ const styles = {
     padding: '20px',
     boxSizing: 'border-box'
   },
-  header: {
-    textAlign: 'center',
-    marginBottom: '20px'
-  },
-  title: {
-    fontSize: '28px',
-    fontWeight: '700',
-    color: '#ffd700',
-    margin: '0 0 5px 0'
-  },
+  header: { textAlign: 'center', marginBottom: '20px' },
+  title: { fontSize: '28px', fontWeight: '700', color: '#ffd700', margin: '0 0 5px 0' },
   videoContainer: {
     position: 'relative',
     width: '100%',
     maxWidth: '400px',
-    margin: '0 auto 20px',
+    margin: '0 auto 15px',
     borderRadius: '20px',
     overflow: 'hidden',
     background: '#000',
     aspectRatio: '4/3'
   },
-  video: {
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover',
-    display: 'block',
-    transform: 'scaleX(-1)'
-  },
-  canvas: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    transform: 'scaleX(-1)'
-  },
+  video: { width: '100%', height: '100%', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)' },
+  canvas: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', transform: 'scaleX(-1)' },
   card: {
     background: 'rgba(255, 255, 255, 0.08)',
     borderRadius: '20px',
@@ -138,48 +119,23 @@ const styles = {
     backdropFilter: 'blur(10px)',
     border: '1px solid rgba(255, 255, 255, 0.1)'
   },
-  rakatDisplay: {
-    textAlign: 'center',
-    padding: '20px'
-  },
-  rakatNumber: {
-    fontSize: '100px',
-    fontWeight: '800',
-    color: '#ffd700',
-    lineHeight: 1
-  },
-  rakatLabel: {
-    fontSize: '22px',
-    color: '#a0a0a0',
-    marginTop: '10px'
-  },
+  rakatNumber: { fontSize: '90px', fontWeight: '800', color: '#ffd700', lineHeight: 1, textAlign: 'center' },
+  rakatLabel: { fontSize: '20px', color: '#a0a0a0', marginTop: '10px', textAlign: 'center' },
   button: {
     width: '100%',
-    padding: '18px',
+    padding: '16px',
     borderRadius: '15px',
     border: 'none',
-    fontSize: '18px',
+    fontSize: '17px',
     fontWeight: '600',
     cursor: 'pointer',
     marginBottom: '10px',
     transition: 'all 0.3s ease'
   },
-  primaryButton: {
-    background: 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)',
-    color: '#fff'
-  },
-  secondaryButton: {
-    background: 'linear-gradient(135deg, #2196F3 0%, #1976D2 100%)',
-    color: '#fff'
-  },
-  dangerButton: {
-    background: 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)',
-    color: '#fff'
-  },
-  warningButton: {
-    background: 'linear-gradient(135deg, #FF9800 0%, #F57C00 100%)',
-    color: '#fff'
-  },
+  primaryButton: { background: 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)', color: '#fff' },
+  secondaryButton: { background: 'linear-gradient(135deg, #2196F3 0%, #1976D2 100%)', color: '#fff' },
+  dangerButton: { background: 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)', color: '#fff' },
+  warningButton: { background: 'linear-gradient(135deg, #FF9800 0%, #F57C00 100%)', color: '#fff' },
   prayerButton: {
     width: '100%',
     padding: '15px',
@@ -195,14 +151,7 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center'
   },
-  componentBadge: {
-    display: 'inline-block',
-    padding: '8px 20px',
-    borderRadius: '25px',
-    fontSize: '16px',
-    fontWeight: '600',
-    marginBottom: '15px'
-  },
+  componentBadge: { display: 'inline-block', padding: '8px 20px', borderRadius: '25px', fontSize: '16px', fontWeight: '600' },
   positionIndicator: {
     textAlign: 'center',
     padding: '12px',
@@ -211,88 +160,29 @@ const styles = {
     marginBottom: '15px',
     fontSize: '18px'
   },
-  progressBar: {
-    width: '100%',
-    height: '12px',
-    background: 'rgba(255,255,255,0.1)',
-    borderRadius: '6px',
-    overflow: 'hidden',
-    marginTop: '15px'
-  },
-  progressFill: {
-    height: '100%',
-    background: 'linear-gradient(90deg, #4CAF50, #8BC34A)',
-    transition: 'width 0.5s ease',
-    borderRadius: '6px'
-  },
-  sujoodCounter: {
-    display: 'flex',
-    justifyContent: 'center',
-    gap: '10px',
-    marginTop: '10px'
-  },
-  sujoodDot: {
-    width: '16px',
-    height: '16px',
-    borderRadius: '50%',
-    border: '2px solid #ffd700'
-  },
-  componentList: {
-    marginTop: '10px'
-  },
-  componentItem: {
-    display: 'flex',
-    alignItems: 'center',
-    padding: '10px 12px',
-    marginBottom: '8px',
-    borderRadius: '10px',
-    background: 'rgba(255, 255, 255, 0.05)'
-  },
-  dot: {
-    width: '10px',
-    height: '10px',
-    borderRadius: '50%',
-    marginRight: '12px'
-  },
-  slider: {
-    width: '100%',
-    height: '6px',
-    marginTop: '10px'
-  },
-  debugInfo: {
-    padding: '12px',
-    background: 'rgba(0, 0, 0, 0.3)',
-    borderRadius: '10px',
-    fontSize: '11px',
-    fontFamily: 'monospace',
-    marginTop: '15px'
-  },
+  progressBar: { width: '100%', height: '10px', background: 'rgba(255,255,255,0.1)', borderRadius: '5px', overflow: 'hidden', marginTop: '12px' },
+  progressFill: { height: '100%', background: 'linear-gradient(90deg, #4CAF50, #8BC34A)', transition: 'width 0.5s ease', borderRadius: '5px' },
+  sujoodDot: { width: '14px', height: '14px', borderRadius: '50%', border: '2px solid #ffd700' },
+  componentItem: { display: 'flex', alignItems: 'center', padding: '10px 12px', marginBottom: '8px', borderRadius: '10px', background: 'rgba(255, 255, 255, 0.05)' },
+  dot: { width: '10px', height: '10px', borderRadius: '50%', marginRight: '12px' },
+  slider: { width: '100%', height: '6px', marginTop: '10px' },
+  debugInfo: { padding: '10px', background: 'rgba(0, 0, 0, 0.3)', borderRadius: '10px', fontSize: '10px', fontFamily: 'monospace', marginTop: '10px' },
   completeOverlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
     background: 'rgba(0, 0, 0, 0.95)',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1000,
-    padding: '20px'
+    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+    zIndex: 1000, padding: '20px'
   },
-  backButton: {
-    background: 'transparent',
-    border: 'none',
-    color: '#ffd700',
-    fontSize: '18px',
-    cursor: 'pointer',
+  backButton: { background: 'transparent', border: 'none', color: '#ffd700', fontSize: '18px', cursor: 'pointer', padding: '10px', marginBottom: '15px' },
+  smallText: { fontSize: '13px', color: '#888' },
+  inferenceAlert: {
+    background: 'rgba(255, 152, 0, 0.2)',
+    border: '1px solid rgba(255, 152, 0, 0.5)',
+    borderRadius: '10px',
     padding: '10px',
-    marginBottom: '15px'
-  },
-  smallText: {
+    marginBottom: '10px',
     fontSize: '13px',
-    color: '#888'
+    color: '#ffb74d'
   }
 };
 
@@ -317,9 +207,14 @@ export function SalahCounter() {
   const [showDebug, setShowDebug] = useState(false);
   const [error, setError] = useState(null);
 
-  // Tuning parameters
+  // Intelligent inference state
+  const [inferenceLog, setInferenceLog] = useState([]);
+  const [salamDetected, setSalamDetected] = useState({ right: false, left: false });
+  const [autoCorrections, setAutoCorrections] = useState(0);
+
+  // Tuning
   const [sensitivity, setSensitivity] = useState(50);
-  const [stabilityFrames, setStabilityFrames] = useState(4);
+  const [stabilityFrames, setStabilityFrames] = useState(3);
 
   // Refs
   const videoRef = useRef(null);
@@ -330,14 +225,79 @@ export function SalahCounter() {
   const animationFrameRef = useRef(null);
   const streamRef = useRef(null);
 
-  // Position classification with tunable thresholds
+  // Intelligent tracking refs
+  const landmarkVectorsRef = useRef({}); // Store landmark vectors for consistency
+  const positionTimelineRef = useRef([]); // Timeline of all positions
+  const lastStandingTimeRef = useRef(null); // When did we last see standing
+  const lastSittingTimeRef = useRef(null); // When did we last see sitting
+  const expectedRakatRef = useRef(1); // What rakah we expect based on inference
+  const missedSujoodRef = useRef(0); // Track potentially missed sujoods
+
+  // Log inference event
+  const logInference = useCallback((message) => {
+    setInferenceLog(prev => [...prev.slice(-4), { time: new Date().toLocaleTimeString(), msg: message }]);
+  }, []);
+
+  // Calculate landmark vector ID for consistent tracking
+  const calculateLandmarkVector = useCallback((landmarks, indices) => {
+    if (!landmarks) return null;
+
+    const vectors = {};
+    indices.forEach(idx => {
+      if (landmarks[idx] && landmarks[idx].visibility > 0.3) {
+        vectors[idx] = {
+          x: landmarks[idx].x,
+          y: landmarks[idx].y,
+          z: landmarks[idx].z || 0,
+          visibility: landmarks[idx].visibility
+        };
+      }
+    });
+
+    return vectors;
+  }, []);
+
+  // Detect salam (face turning)
+  const detectSalam = useCallback((landmarks) => {
+    if (!landmarks || !landmarks[0]) return null;
+
+    const nose = landmarks[0];
+    const leftEar = landmarks[7];
+    const rightEar = landmarks[8];
+    const leftShoulder = landmarks[11];
+    const rightShoulder = landmarks[12];
+
+    if (!leftEar || !rightEar || !leftShoulder || !rightShoulder) return null;
+
+    // Calculate face direction based on ear positions relative to nose
+    const shoulderCenterX = (leftShoulder.x + rightShoulder.x) / 2;
+    const earDiff = leftEar.x - rightEar.x;
+    const noseOffset = nose.x - shoulderCenterX;
+
+    // Face turned right (looking over right shoulder)
+    if (noseOffset > 0.08 && earDiff < 0.05) {
+      return 'right';
+    }
+    // Face turned left (looking over left shoulder)
+    if (noseOffset < -0.08 && earDiff < 0.05) {
+      return 'left';
+    }
+
+    return null;
+  }, []);
+
+  // Intelligent position classification
   const classifyPosition = useCallback((landmarks) => {
     if (!landmarks || landmarks.length < 33) return POSITIONS.UNKNOWN;
 
-    // Sensitivity affects thresholds (0-100 scale)
+    // Store landmark vectors for tracking
+    const keyIndices = [0, 7, 8, 11, 12, 23, 24, 25, 26, 27, 28]; // Key body parts
+    const currentVectors = calculateLandmarkVector(landmarks, keyIndices);
+    landmarkVectorsRef.current = currentVectors;
+
     const sens = sensitivity / 100;
-    const sujoodThreshold = 0.02 + (0.08 * (1 - sens));
-    const rukuThreshold = 0.10 + (0.10 * (1 - sens));
+    const sujoodThreshold = 0.02 + (0.06 * (1 - sens));
+    const rukuThreshold = 0.08 + (0.08 * (1 - sens));
 
     const nose = landmarks[0];
     const leftShoulder = landmarks[11];
@@ -346,52 +306,54 @@ export function SalahCounter() {
     const rightHip = landmarks[24];
     const leftKnee = landmarks[25];
     const rightKnee = landmarks[26];
-    const leftAnkle = landmarks[27];
-    const rightAnkle = landmarks[28];
+
+    // Check visibility - use available landmarks even if some are occluded
+    const visibleCount = [nose, leftShoulder, rightShoulder, leftHip, rightHip]
+      .filter(l => l && l.visibility > 0.3).length;
+
+    if (visibleCount < 3) return POSITIONS.UNKNOWN;
 
     const shoulderY = (leftShoulder.y + rightShoulder.y) / 2;
     const hipY = (leftHip.y + rightHip.y) / 2;
     const kneeY = (leftKnee.y + rightKnee.y) / 2;
-    const ankleY = (leftAnkle.y + rightAnkle.y) / 2;
     const noseY = nose.y;
 
-    const avgVisibility = (
-      nose.visibility +
-      leftShoulder.visibility + rightShoulder.visibility +
-      leftHip.visibility + rightHip.visibility
-    ) / 5;
-
+    const avgVisibility = visibleCount / 5;
     setConfidence(Math.round(avgVisibility * 100));
 
-    if (avgVisibility < 0.4) return POSITIONS.UNKNOWN;
+    // Check for salam
+    const salamDir = detectSalam(landmarks);
+    if (salamDir) {
+      return salamDir === 'right' ? POSITIONS.SALAM_RIGHT : POSITIONS.SALAM_LEFT;
+    }
 
-    // SUJOOD: Nose below or near hip level
+    // SUJOOD
     if (noseY > hipY + sujoodThreshold) {
       return POSITIONS.PROSTRATING;
     }
 
-    // RUKU: Back roughly horizontal, nose lowered
-    if (Math.abs(shoulderY - hipY) < rukuThreshold && noseY > shoulderY) {
+    // RUKU
+    if (Math.abs(shoulderY - hipY) < rukuThreshold && noseY > shoulderY - 0.02) {
       return POSITIONS.BOWING;
     }
 
-    // SITTING: Hips near knee level
-    if (Math.abs(hipY - kneeY) < 0.15 && noseY < hipY) {
+    // SITTING
+    if (Math.abs(hipY - kneeY) < 0.18 && noseY < hipY) {
       return POSITIONS.SITTING;
     }
 
-    // STANDING: Vertical posture
+    // STANDING
     if (noseY < shoulderY && shoulderY < hipY && hipY < kneeY) {
       return POSITIONS.STANDING;
     }
 
     return POSITIONS.UNKNOWN;
-  }, [sensitivity]);
+  }, [sensitivity, calculateLandmarkVector, detectSalam]);
 
-  // Stable position with tunable frames
+  // Get stable position
   const getStablePosition = useCallback((newPosition) => {
     positionHistoryRef.current.push(newPosition);
-    if (positionHistoryRef.current.length > stabilityFrames + 2) {
+    if (positionHistoryRef.current.length > stabilityFrames + 3) {
       positionHistoryRef.current.shift();
     }
 
@@ -412,27 +374,132 @@ export function SalahCounter() {
     return stablePosition;
   }, [stabilityFrames]);
 
-  // Handle position changes for rakah counting
-  const handlePositionChange = useCallback((newPosition) => {
-    const prevPosition = lastPositionRef.current;
+  // Intelligent inference for missed detections
+  const applyIntelligentInference = useCallback((currentPos, prevPos) => {
+    const now = Date.now();
 
-    if (newPosition === prevPosition || newPosition === POSITIONS.UNKNOWN) {
+    // Record position in timeline
+    positionTimelineRef.current.push({ position: currentPos, time: now });
+    if (positionTimelineRef.current.length > 100) {
+      positionTimelineRef.current.shift();
+    }
+
+    // Track standing/sitting times
+    if (currentPos === POSITIONS.STANDING) {
+      lastStandingTimeRef.current = now;
+    }
+    if (currentPos === POSITIONS.SITTING) {
+      lastSittingTimeRef.current = now;
+    }
+
+    // INFERENCE 1: Salam detection = prayer complete
+    if (currentPos === POSITIONS.SALAM_RIGHT) {
+      setSalamDetected(prev => ({ ...prev, right: true }));
+    }
+    if (currentPos === POSITIONS.SALAM_LEFT && salamDetected.right) {
+      // Both salams done - prayer is complete
+      logInference('Salam detected - Prayer complete');
+
+      // Auto-correct to final rakah if we're behind
+      if (currentRakat < totalRakats) {
+        const missed = totalRakats - currentRakat;
+        logInference(`Auto-correcting ${missed} missed rakah(s)`);
+        setCurrentRakat(totalRakats);
+        setAutoCorrections(prev => prev + missed);
+      }
+
+      setShowComplete(true);
+      setIsTracking(false);
       return;
     }
 
-    // Detect sujood completion
+    // INFERENCE 2: Standing after sitting (not sujood) = new rakah likely started
+    if (currentPos === POSITIONS.STANDING && prevPos === POSITIONS.SITTING) {
+      const expectedRakat = expectedRakatRef.current;
+
+      // If we're behind expected rakah, we likely missed detections
+      if (currentRakat < expectedRakat) {
+        logInference(`Standing detected - Auto-advancing to rakah ${expectedRakat}`);
+        setCurrentRakat(expectedRakat);
+        setSujoodInRakat(0);
+        setAutoCorrections(prev => prev + 1);
+      }
+
+      // Update expected rakah for next cycle
+      expectedRakatRef.current = Math.min(currentRakat + 1, totalRakats);
+    }
+
+    // INFERENCE 3: If we see sitting → standing → sitting pattern, a rakah was completed
+    const timeline = positionTimelineRef.current;
+    if (timeline.length >= 10) {
+      const recent = timeline.slice(-10).map(t => t.position);
+      const pattern = recent.filter(p => p !== POSITIONS.UNKNOWN);
+
+      // Look for: SITTING -> ... -> STANDING -> ... -> SITTING (indicates rakah boundary)
+      let foundSitting1 = false;
+      let foundStanding = false;
+      let foundSitting2 = false;
+
+      for (const pos of pattern) {
+        if (!foundSitting1 && pos === POSITIONS.SITTING) foundSitting1 = true;
+        else if (foundSitting1 && !foundStanding && pos === POSITIONS.STANDING) foundStanding = true;
+        else if (foundStanding && !foundSitting2 && pos === POSITIONS.SITTING) foundSitting2 = true;
+      }
+
+      if (foundSitting1 && foundStanding && foundSitting2) {
+        // This pattern suggests a rakah boundary was crossed
+        if (sujoodInRakat === 1) {
+          // We only saw 1 sujood but pattern suggests rakah complete
+          logInference('Pattern inference: Completing rakah (1 sujood detected + sitting-standing-sitting pattern)');
+          setSujoodInRakat(0);
+          if (currentRakat < totalRakats) {
+            setCurrentRakat(r => r + 1);
+            setAutoCorrections(prev => prev + 1);
+          }
+        }
+      }
+    }
+
+    // INFERENCE 4: Long time in sitting after sujoods = likely tashahhud/end position
+    if (currentPos === POSITIONS.SITTING && lastSittingTimeRef.current) {
+      const sittingDuration = now - lastSittingTimeRef.current;
+      // If sitting for > 5 seconds and we have 1 sujood, might be mid-rakah sitting
+      // If sitting for > 10 seconds, might be final sitting
+      if (sittingDuration > 10000 && currentRakat === totalRakats && sujoodInRakat >= 1) {
+        // Likely final sitting before salam
+        logInference('Extended sitting detected - Likely final tashahhud');
+      }
+    }
+
+  }, [currentRakat, totalRakats, sujoodInRakat, salamDetected, logInference]);
+
+  // Handle position changes with intelligent tracking
+  const handlePositionChange = useCallback((newPosition) => {
+    const prevPosition = lastPositionRef.current;
+
+    if (newPosition === prevPosition) return;
+
+    // Apply intelligent inference
+    if (newPosition !== POSITIONS.UNKNOWN) {
+      applyIntelligentInference(newPosition, prevPosition);
+    }
+
+    if (newPosition === POSITIONS.UNKNOWN) return;
+
+    // Direct sujood counting
     if (prevPosition === POSITIONS.PROSTRATING &&
         (newPosition === POSITIONS.SITTING || newPosition === POSITIONS.STANDING)) {
       setSujoodInRakat(prev => {
         const newCount = prev + 1;
         if (newCount >= 2) {
-          // Rakah complete
+          // Rakah complete via direct detection
           setCurrentRakat(r => {
             if (r >= totalRakats) {
               setShowComplete(true);
               setIsTracking(false);
               return r;
             }
+            expectedRakatRef.current = r + 2; // Expect next rakah
             return r + 1;
           });
           return 0;
@@ -443,7 +510,7 @@ export function SalahCounter() {
 
     lastPositionRef.current = newPosition;
     setCurrentPosition(newPosition);
-  }, [totalRakats]);
+  }, [totalRakats, applyIntelligentInference]);
 
   // Process frame
   const processFrame = useCallback(async () => {
@@ -456,7 +523,7 @@ export function SalahCounter() {
       try {
         await poseRef.current.pose.send({ image: videoRef.current });
       } catch (e) {
-        console.error('Pose error:', e);
+        // Silent error handling
       }
     }
 
@@ -491,24 +558,27 @@ export function SalahCounter() {
 
           const canvas = canvasRef.current;
           const ctx = canvas.getContext('2d');
-          const video = videoRef.current;
 
-          canvas.width = video.videoWidth || 640;
-          canvas.height = video.videoHeight || 480;
+          canvas.width = videoRef.current.videoWidth || 640;
+          canvas.height = videoRef.current.videoHeight || 480;
 
           ctx.clearRect(0, 0, canvas.width, canvas.height);
 
           if (results.poseLandmarks) {
-            // Draw skeleton
             const poseModule = require('@mediapipe/pose');
+
+            // Draw with colors based on visibility
+            results.poseLandmarks.forEach((landmark, idx) => {
+              const color = landmark.visibility > 0.5 ? '#00FF00' : '#FF6600';
+              ctx.beginPath();
+              ctx.arc(landmark.x * canvas.width, landmark.y * canvas.height, 4, 0, 2 * Math.PI);
+              ctx.fillStyle = color;
+              ctx.fill();
+            });
+
             drawingUtils.drawConnectors(ctx, results.poseLandmarks, poseModule.POSE_CONNECTIONS, {
               color: '#00FF00',
               lineWidth: 2
-            });
-            drawingUtils.drawLandmarks(ctx, results.poseLandmarks, {
-              color: '#FF0000',
-              lineWidth: 1,
-              radius: 3
             });
 
             if (isTracking) {
@@ -522,7 +592,6 @@ export function SalahCounter() {
         poseRef.current = { pose, drawingUtils };
         setPoseReady(true);
       } catch (err) {
-        console.error('MediaPipe error:', err);
         if (mounted) setError('Failed to load pose detection.');
       }
     };
@@ -569,8 +638,16 @@ export function SalahCounter() {
     setTotalRakats(prayer.components[componentIndex].rakats);
     setShowComplete(false);
     setCurrentPosition(POSITIONS.UNKNOWN);
+    setInferenceLog([]);
+    setSalamDetected({ right: false, left: false });
+    setAutoCorrections(0);
     lastPositionRef.current = POSITIONS.UNKNOWN;
     positionHistoryRef.current = [];
+    positionTimelineRef.current = [];
+    expectedRakatRef.current = 1;
+    missedSujoodRef.current = 0;
+    lastStandingTimeRef.current = null;
+    lastSittingTimeRef.current = null;
     setScreen('pray');
     startCamera();
   };
@@ -584,8 +661,10 @@ export function SalahCounter() {
       setTotalRakats(selectedPrayer.components[nextIdx].rakats);
       setShowComplete(false);
       setCurrentPosition(POSITIONS.UNKNOWN);
-      lastPositionRef.current = POSITIONS.UNKNOWN;
-      positionHistoryRef.current = [];
+      setInferenceLog([]);
+      setSalamDetected({ right: false, left: false });
+      positionTimelineRef.current = [];
+      expectedRakatRef.current = 1;
     } else {
       exitPrayer();
     }
@@ -596,8 +675,13 @@ export function SalahCounter() {
     setSujoodInRakat(0);
     setShowComplete(false);
     setCurrentPosition(POSITIONS.UNKNOWN);
+    setInferenceLog([]);
+    setSalamDetected({ right: false, left: false });
+    setAutoCorrections(0);
     lastPositionRef.current = POSITIONS.UNKNOWN;
     positionHistoryRef.current = [];
+    positionTimelineRef.current = [];
+    expectedRakatRef.current = 1;
   };
 
   const exitPrayer = () => {
@@ -606,7 +690,6 @@ export function SalahCounter() {
     setScreen('home');
   };
 
-  // Manual increment (fallback)
   const manualSujood = () => {
     setSujoodInRakat(prev => {
       const newCount = prev + 1;
@@ -624,6 +707,14 @@ export function SalahCounter() {
     });
   };
 
+  const manualNextRakah = () => {
+    if (currentRakat < totalRakats) {
+      setCurrentRakat(r => r + 1);
+      setSujoodInRakat(0);
+      logInference('Manual: Advanced to next rakah');
+    }
+  };
+
   // Position helpers
   const getPositionName = (pos) => {
     switch (pos) {
@@ -631,6 +722,8 @@ export function SalahCounter() {
       case POSITIONS.BOWING: return 'Ruku (Bowing)';
       case POSITIONS.PROSTRATING: return 'Sujood';
       case POSITIONS.SITTING: return 'Jalsa (Sitting)';
+      case POSITIONS.SALAM_RIGHT: return 'Salam (Right)';
+      case POSITIONS.SALAM_LEFT: return 'Salam (Left)';
       default: return 'Detecting...';
     }
   };
@@ -641,6 +734,8 @@ export function SalahCounter() {
       case POSITIONS.BOWING: return '#2196F3';
       case POSITIONS.PROSTRATING: return '#9C27B0';
       case POSITIONS.SITTING: return '#FF9800';
+      case POSITIONS.SALAM_RIGHT:
+      case POSITIONS.SALAM_LEFT: return '#00BCD4';
       default: return '#666';
     }
   };
@@ -664,16 +759,10 @@ export function SalahCounter() {
         <div style={styles.card}>
           <h3 style={{ margin: '0 0 15px 0', color: '#ffd700', fontSize: '18px' }}>Select Prayer</h3>
           {Object.entries(PRAYERS).map(([key, prayer]) => (
-            <button
-              key={key}
-              style={styles.prayerButton}
-              onClick={() => setScreen('select-' + key)}
-            >
+            <button key={key} style={styles.prayerButton} onClick={() => setScreen('select-' + key)}>
               <div>
                 <div style={{ fontSize: '20px' }}>{prayer.name}</div>
-                <div style={styles.smallText}>
-                  {prayer.components.map(c => `${c.rakats} ${c.type}`).join(' • ')}
-                </div>
+                <div style={styles.smallText}>{prayer.components.map(c => `${c.rakats} ${c.type}`).join(' • ')}</div>
               </div>
               <div style={{ fontSize: '24px' }}>{prayer.arabic}</div>
             </button>
@@ -681,69 +770,42 @@ export function SalahCounter() {
         </div>
 
         <div style={{ ...styles.card, background: 'rgba(255, 215, 0, 0.1)' }}>
-          <h4 style={{ margin: '0 0 10px 0', color: '#ffd700', fontSize: '16px' }}>Detection Tuning</h4>
+          <h4 style={{ margin: '0 0 10px 0', color: '#ffd700', fontSize: '16px' }}>Detection Settings</h4>
 
           <div style={{ marginBottom: '15px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px' }}>
-              <span>Sensitivity</span>
-              <span>{sensitivity}%</span>
+              <span>Sensitivity</span><span>{sensitivity}%</span>
             </div>
-            <input
-              type="range"
-              min="20"
-              max="80"
-              value={sensitivity}
-              onChange={(e) => setSensitivity(Number(e.target.value))}
-              style={styles.slider}
-            />
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#888' }}>
-              <span>Less sensitive</span>
-              <span>More sensitive</span>
-            </div>
+            <input type="range" min="20" max="80" value={sensitivity} onChange={(e) => setSensitivity(Number(e.target.value))} style={styles.slider} />
           </div>
 
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px' }}>
-              <span>Stability Frames</span>
-              <span>{stabilityFrames}</span>
+              <span>Stability</span><span>{stabilityFrames} frames</span>
             </div>
-            <input
-              type="range"
-              min="2"
-              max="8"
-              value={stabilityFrames}
-              onChange={(e) => setStabilityFrames(Number(e.target.value))}
-              style={styles.slider}
-            />
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#888' }}>
-              <span>Faster (less stable)</span>
-              <span>Slower (more stable)</span>
-            </div>
+            <input type="range" min="2" max="6" value={stabilityFrames} onChange={(e) => setStabilityFrames(Number(e.target.value))} style={styles.slider} />
           </div>
         </div>
 
-        <div style={{ ...styles.card, background: 'rgba(255,255,255,0.03)' }}>
-          <h4 style={{ margin: '0 0 10px 0', color: '#ffd700', fontSize: '16px' }}>How it works</h4>
-          <p style={{ margin: '5px 0', fontSize: '14px', color: '#ccc' }}>1. Position device to see your full body</p>
-          <p style={{ margin: '5px 0', fontSize: '14px', color: '#ccc' }}>2. AI detects Standing, Bowing, Sujood, Sitting</p>
-          <p style={{ margin: '5px 0', fontSize: '14px', color: '#ccc' }}>3. Rakahs counted automatically (2 Sujood = 1 Rakah)</p>
-          <p style={{ margin: '5px 0', fontSize: '12px', color: '#888' }}>All processing is local - no data sent anywhere</p>
+        <div style={{ ...styles.card, background: 'rgba(76, 175, 80, 0.1)' }}>
+          <h4 style={{ margin: '0 0 10px 0', color: '#4CAF50', fontSize: '16px' }}>Smart Features</h4>
+          <p style={{ margin: '5px 0', fontSize: '13px', color: '#ccc' }}>✓ Salam detection (auto-complete)</p>
+          <p style={{ margin: '5px 0', fontSize: '13px', color: '#ccc' }}>✓ Auto-correction for missed sujoods</p>
+          <p style={{ margin: '5px 0', fontSize: '13px', color: '#ccc' }}>✓ Pattern inference for rakah boundaries</p>
+          <p style={{ margin: '5px 0', fontSize: '13px', color: '#ccc' }}>✓ Landmark tracking in low light</p>
         </div>
       </div>
     );
   }
 
-  // PRAYER SELECTION SCREEN
+  // PRAYER SELECTION
   if (screen.startsWith('select-')) {
     const prayerKey = screen.replace('select-', '');
     const prayer = PRAYERS[prayerKey];
 
     return (
       <div style={styles.container}>
-        <button style={styles.backButton} onClick={() => setScreen('home')}>
-          ← Back
-        </button>
-
+        <button style={styles.backButton} onClick={() => setScreen('home')}>← Back</button>
         <div style={styles.header}>
           <p style={{ fontSize: '32px', color: '#ffd700', margin: '0 0 5px 0' }}>{prayer.arabic}</p>
           <h2 style={{ ...styles.title, fontSize: '24px' }}>{prayer.name}</h2>
@@ -752,14 +814,7 @@ export function SalahCounter() {
         <div style={styles.card}>
           <h4 style={{ margin: '0 0 15px 0', color: '#ffd700' }}>Select Component</h4>
           {prayer.components.map((comp, idx) => (
-            <button
-              key={idx}
-              style={{
-                ...styles.prayerButton,
-                borderLeft: `4px solid ${comp.color}`
-              }}
-              onClick={() => startPrayer(prayer, idx)}
-            >
+            <button key={idx} style={{ ...styles.prayerButton, borderLeft: `4px solid ${comp.color}` }} onClick={() => startPrayer(prayer, idx)}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ ...styles.dot, background: comp.color }} />
                 <span>{comp.type}</span>
@@ -769,10 +824,7 @@ export function SalahCounter() {
           ))}
         </div>
 
-        <button
-          style={{ ...styles.button, ...styles.primaryButton }}
-          onClick={() => startPrayer(prayer, 0)}
-        >
+        <button style={{ ...styles.button, ...styles.primaryButton }} onClick={() => startPrayer(prayer, 0)}>
           Start Full Prayer
         </button>
       </div>
@@ -786,28 +838,24 @@ export function SalahCounter() {
 
     return (
       <div style={styles.container}>
-        {/* Complete Overlay */}
         {showComplete && (
           <div style={styles.completeOverlay}>
             <div style={{ fontSize: '70px', marginBottom: '20px' }}>✓</div>
             <h2 style={{ color: '#ffd700', fontSize: '28px', margin: '0 0 10px 0' }}>ما شاء الله</h2>
-            <p style={{ fontSize: '22px', marginBottom: '20px' }}>{component.type} Complete!</p>
-            <p style={{ fontSize: '16px', color: '#888', marginBottom: '25px' }}>
-              {totalRakats} Rakats • {totalRakats * 2} Sujood
-            </p>
+            <p style={{ fontSize: '22px', marginBottom: '15px' }}>{component.type} Complete!</p>
+            {autoCorrections > 0 && (
+              <p style={{ fontSize: '14px', color: '#ffb74d', marginBottom: '15px' }}>
+                ({autoCorrections} auto-correction{autoCorrections > 1 ? 's' : ''} applied)
+              </p>
+            )}
+            <p style={{ fontSize: '16px', color: '#888', marginBottom: '25px' }}>{totalRakats} Rakats</p>
 
             {currentComponent < selectedPrayer.components.length - 1 ? (
-              <button
-                style={{ ...styles.button, ...styles.primaryButton, width: '250px' }}
-                onClick={nextComponent}
-              >
+              <button style={{ ...styles.button, ...styles.primaryButton, width: '250px' }} onClick={nextComponent}>
                 Next: {selectedPrayer.components[currentComponent + 1].type}
               </button>
             ) : (
-              <button
-                style={{ ...styles.button, ...styles.primaryButton, width: '250px' }}
-                onClick={exitPrayer}
-              >
+              <button style={{ ...styles.button, ...styles.primaryButton, width: '250px' }} onClick={exitPrayer}>
                 Complete - Back Home
               </button>
             )}
@@ -816,108 +864,82 @@ export function SalahCounter() {
 
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-          <button style={{ ...styles.backButton, marginBottom: 0 }} onClick={exitPrayer}>
-            ← Exit
-          </button>
-          <span style={{ color: '#ffd700', fontSize: '16px' }}>
-            {selectedPrayer.name} - {selectedPrayer.arabic}
-          </span>
-          <button
-            style={{ background: 'transparent', border: 'none', color: '#888', fontSize: '12px', cursor: 'pointer' }}
-            onClick={() => setShowDebug(!showDebug)}
-          >
+          <button style={{ ...styles.backButton, marginBottom: 0 }} onClick={exitPrayer}>← Exit</button>
+          <span style={{ color: '#ffd700', fontSize: '16px' }}>{selectedPrayer.name}</span>
+          <button style={{ background: 'transparent', border: 'none', color: '#888', fontSize: '12px', cursor: 'pointer' }} onClick={() => setShowDebug(!showDebug)}>
             {showDebug ? 'Hide' : 'Debug'}
           </button>
         </div>
 
-        {/* Component Badge */}
         <div style={{ textAlign: 'center' }}>
-          <span style={{ ...styles.componentBadge, background: component.color }}>
-            {component.type}
-          </span>
+          <span style={{ ...styles.componentBadge, background: component.color }}>{component.type}</span>
         </div>
 
-        {/* Video Feed */}
         <div style={styles.videoContainer}>
           <video ref={videoRef} style={styles.video} playsInline muted />
           <canvas ref={canvasRef} style={styles.canvas} />
           {!cameraReady && (
-            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-              Loading Camera...
-            </div>
+            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>Loading...</div>
           )}
         </div>
 
-        {/* Rakat Display */}
-        <div style={styles.card}>
-          <div style={styles.rakatDisplay}>
-            <div style={styles.rakatNumber}>{currentRakat}</div>
-            <div style={styles.rakatLabel}>of {totalRakats} Rakats</div>
-
-            <div style={styles.progressBar}>
-              <div style={{ ...styles.progressFill, width: `${progress}%` }} />
-            </div>
-
-            <div style={styles.sujoodCounter}>
-              <div style={{ ...styles.sujoodDot, background: sujoodInRakat >= 1 ? '#ffd700' : 'transparent' }} />
-              <div style={{ ...styles.sujoodDot, background: sujoodInRakat >= 2 ? '#ffd700' : 'transparent' }} />
-            </div>
-            <div style={{ fontSize: '12px', color: '#888', marginTop: '5px' }}>Sujood: {sujoodInRakat}/2</div>
+        {/* Inference alerts */}
+        {inferenceLog.length > 0 && (
+          <div style={styles.inferenceAlert}>
+            <strong>AI:</strong> {inferenceLog[inferenceLog.length - 1]?.msg}
           </div>
+        )}
+
+        <div style={styles.card}>
+          <div style={styles.rakatNumber}>{currentRakat}</div>
+          <div style={styles.rakatLabel}>of {totalRakats} Rakats</div>
+          <div style={styles.progressBar}>
+            <div style={{ ...styles.progressFill, width: `${progress}%` }} />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '10px' }}>
+            <div style={{ ...styles.sujoodDot, background: sujoodInRakat >= 1 ? '#ffd700' : 'transparent' }} />
+            <div style={{ ...styles.sujoodDot, background: sujoodInRakat >= 2 ? '#ffd700' : 'transparent' }} />
+          </div>
+          <div style={{ fontSize: '12px', color: '#888', marginTop: '5px', textAlign: 'center' }}>Sujood: {sujoodInRakat}/2</div>
         </div>
 
-        {/* Position Indicator */}
         <div style={{ ...styles.positionIndicator, borderLeft: `4px solid ${getPositionColor(currentPosition)}` }}>
           <span style={{ color: getPositionColor(currentPosition) }}>{getPositionName(currentPosition)}</span>
-          {confidence > 0 && <span style={{ color: '#888', marginLeft: '10px', fontSize: '14px' }}>{confidence}%</span>}
+          <span style={{ color: '#888', marginLeft: '10px', fontSize: '14px' }}>{confidence}%</span>
         </div>
 
-        {/* Controls */}
-        <button
-          style={{ ...styles.button, ...(isTracking ? styles.dangerButton : styles.primaryButton) }}
-          onClick={() => setIsTracking(!isTracking)}
-        >
-          {isTracking ? '⏹ Pause Tracking' : '▶ Start Tracking'}
+        <button style={{ ...styles.button, ...(isTracking ? styles.dangerButton : styles.primaryButton) }} onClick={() => setIsTracking(!isTracking)}>
+          {isTracking ? '⏹ Pause' : '▶ Start Tracking'}
         </button>
 
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button style={{ ...styles.button, ...styles.secondaryButton, flex: 1 }} onClick={manualSujood}>
-            👆 Manual Sujood
-          </button>
-          <button style={{ ...styles.button, ...styles.warningButton, flex: 1 }} onClick={resetPrayer}>
-            🔄 Reset
-          </button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button style={{ ...styles.button, ...styles.secondaryButton, flex: 1 }} onClick={manualSujood}>👆 Sujood</button>
+          <button style={{ ...styles.button, ...styles.warningButton, flex: 1 }} onClick={manualNextRakah}>→ Next Rakah</button>
+          <button style={{ ...styles.button, background: '#555', color: '#fff', flex: 1 }} onClick={resetPrayer}>↺ Reset</button>
         </div>
 
-        {/* Component Progress */}
         {selectedPrayer.components.length > 1 && (
           <div style={{ ...styles.card, marginTop: '10px' }}>
-            <div style={{ fontSize: '14px', color: '#888', marginBottom: '10px' }}>Prayer Progress</div>
+            <div style={{ fontSize: '13px', color: '#888', marginBottom: '8px' }}>Progress</div>
             {selectedPrayer.components.map((comp, idx) => (
-              <div
-                key={idx}
-                style={{
-                  ...styles.componentItem,
-                  opacity: idx < currentComponent ? 0.5 : 1,
-                  border: idx === currentComponent ? '1px solid #ffd700' : '1px solid transparent'
-                }}
-              >
+              <div key={idx} style={{ ...styles.componentItem, opacity: idx < currentComponent ? 0.5 : 1, border: idx === currentComponent ? '1px solid #ffd700' : 'none' }}>
                 <div style={{ ...styles.dot, background: comp.color }} />
-                <span style={{ flex: 1 }}>{comp.type}</span>
-                <span style={{ color: '#888', fontSize: '13px' }}>{comp.rakats} Rakats</span>
+                <span style={{ flex: 1, fontSize: '14px' }}>{comp.type}</span>
+                <span style={{ color: '#888', fontSize: '12px' }}>{comp.rakats}</span>
                 {idx < currentComponent && <span style={{ marginLeft: '8px' }}>✓</span>}
               </div>
             ))}
           </div>
         )}
 
-        {/* Debug Info */}
         {showDebug && (
           <div style={styles.debugInfo}>
-            <div>Camera: {cameraReady ? '✓' : '...'} | Pose: {poseReady ? '✓' : '...'}</div>
-            <div>Tracking: {isTracking ? 'ON' : 'OFF'} | Position: {currentPosition}</div>
-            <div>Confidence: {confidence}% | Sensitivity: {sensitivity}%</div>
-            <div>Stability: {stabilityFrames} frames | Sujood: {sujoodInRakat}/2</div>
+            <div>Pose: {poseReady ? '✓' : '...'} | Track: {isTracking ? 'ON' : 'OFF'} | Pos: {currentPosition}</div>
+            <div>Conf: {confidence}% | Sens: {sensitivity}% | Stab: {stabilityFrames}f</div>
+            <div>Salam: R={salamDetected.right ? '✓' : '-'} L={salamDetected.left ? '✓' : '-'} | AutoFix: {autoCorrections}</div>
+            {inferenceLog.slice(-2).map((log, i) => (
+              <div key={i} style={{ color: '#ffb74d' }}>{log.time}: {log.msg}</div>
+            ))}
           </div>
         )}
       </div>
