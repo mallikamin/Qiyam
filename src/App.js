@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import './App.css';
 
 // Prayer data with all details
 const PRAYERS = {
@@ -75,6 +76,229 @@ const PRAYERS = {
   }
 };
 
+// Styles moved outside component to prevent recreation on every render
+const styles = {
+  container: {
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    color: '#fff',
+    padding: '20px',
+    boxSizing: 'border-box'
+  },
+  header: {
+    textAlign: 'center',
+    marginBottom: '30px'
+  },
+  title: {
+    fontSize: '32px',
+    fontWeight: '700',
+    color: '#ffd700',
+    margin: '0 0 5px 0',
+    textShadow: '0 2px 10px rgba(255, 215, 0, 0.3)'
+  },
+  subtitle: {
+    fontSize: '18px',
+    color: '#a0a0a0',
+    margin: 0
+  },
+  arabicTitle: {
+    fontSize: '42px',
+    color: '#ffd700',
+    fontFamily: 'Arial, sans-serif',
+    direction: 'rtl'
+  },
+  card: {
+    background: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: '20px',
+    padding: '25px',
+    marginBottom: '20px',
+    backdropFilter: 'blur(10px)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+  },
+  prayerButton: {
+    width: '100%',
+    padding: '20px',
+    marginBottom: '15px',
+    borderRadius: '16px',
+    border: 'none',
+    background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)',
+    color: '#fff',
+    fontSize: '22px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)'
+  },
+  bigButton: {
+    width: '100%',
+    padding: '25px 40px',
+    borderRadius: '20px',
+    border: 'none',
+    fontSize: '24px',
+    fontWeight: '700',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    marginTop: '15px',
+    boxShadow: '0 6px 20px rgba(0, 0, 0, 0.3)'
+  },
+  primaryButton: {
+    background: 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)',
+    color: '#fff'
+  },
+  secondaryButton: {
+    background: 'linear-gradient(135deg, #2196F3 0%, #1976D2 100%)',
+    color: '#fff'
+  },
+  warningButton: {
+    background: 'linear-gradient(135deg, #FF9800 0%, #F57C00 100%)',
+    color: '#fff'
+  },
+  dangerButton: {
+    background: 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)',
+    color: '#fff'
+  },
+  counterDisplay: {
+    textAlign: 'center',
+    padding: '40px 20px'
+  },
+  bigNumber: {
+    fontSize: '120px',
+    fontWeight: '800',
+    color: '#ffd700',
+    lineHeight: 1,
+    textShadow: '0 4px 20px rgba(255, 215, 0, 0.4)'
+  },
+  label: {
+    fontSize: '24px',
+    color: '#a0a0a0',
+    marginTop: '10px'
+  },
+  progressBar: {
+    width: '100%',
+    height: '20px',
+    background: 'rgba(255,255,255,0.1)',
+    borderRadius: '10px',
+    overflow: 'hidden',
+    marginTop: '20px'
+  },
+  progressFill: {
+    height: '100%',
+    background: 'linear-gradient(90deg, #4CAF50, #8BC34A)',
+    transition: 'width 0.5s ease',
+    borderRadius: '10px'
+  },
+  componentBadge: {
+    display: 'inline-block',
+    padding: '10px 25px',
+    borderRadius: '30px',
+    fontSize: '20px',
+    fontWeight: '600',
+    marginBottom: '20px'
+  },
+  statusIndicator: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '15px',
+    padding: '20px',
+    borderRadius: '15px',
+    marginTop: '20px',
+    fontSize: '18px'
+  },
+  pulse: {
+    width: '20px',
+    height: '20px',
+    borderRadius: '50%',
+    animation: 'pulse 1.5s infinite'
+  },
+  backButton: {
+    background: 'transparent',
+    border: 'none',
+    color: '#ffd700',
+    fontSize: '20px',
+    cursor: 'pointer',
+    padding: '10px',
+    marginBottom: '20px'
+  },
+  grid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gap: '15px'
+  },
+  smallText: {
+    fontSize: '14px',
+    color: '#888'
+  },
+  completeOverlay: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'rgba(0, 0, 0, 0.9)',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000,
+    padding: '20px'
+  },
+  checkmark: {
+    width: '120px',
+    height: '120px',
+    borderRadius: '50%',
+    background: 'linear-gradient(135deg, #4CAF50, #8BC34A)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: '30px',
+    boxShadow: '0 0 60px rgba(76, 175, 80, 0.5)'
+  },
+  inputNumber: {
+    width: '100px',
+    padding: '15px',
+    fontSize: '28px',
+    textAlign: 'center',
+    borderRadius: '15px',
+    border: '2px solid rgba(255, 215, 0, 0.5)',
+    background: 'rgba(255, 255, 255, 0.1)',
+    color: '#fff',
+    fontWeight: '700'
+  },
+  componentList: {
+    marginTop: '15px'
+  },
+  componentItem: {
+    display: 'flex',
+    alignItems: 'center',
+    padding: '12px 15px',
+    marginBottom: '10px',
+    borderRadius: '12px',
+    background: 'rgba(255, 255, 255, 0.05)'
+  },
+  dot: {
+    width: '12px',
+    height: '12px',
+    borderRadius: '50%',
+    marginRight: '15px'
+  },
+  tapZone: {
+    background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.3) 0%, rgba(76, 175, 80, 0.1) 100%)',
+    borderRadius: '30px',
+    padding: '60px 20px',
+    marginTop: '20px',
+    textAlign: 'center',
+    border: '3px dashed rgba(76, 175, 80, 0.5)',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease'
+  }
+};
+
 export function SalahCounter() {
   const [screen, setScreen] = useState('home'); // home, select, pray, custom
   const [selectedPrayer, setSelectedPrayer] = useState(null);
@@ -88,8 +312,7 @@ export function SalahCounter() {
   const [lastMotion, setLastMotion] = useState(null);
   const [showComplete, setShowComplete] = useState(false);
   const [sensitivity, setSensitivity] = useState(15);
-  
-  const motionRef = useRef(null);
+
   const lastZRef = useRef(0);
   const sujoodDetectedRef = useRef(false);
   const cooldownRef = useRef(false);
@@ -98,7 +321,7 @@ export function SalahCounter() {
   const handleMotion = useCallback((event) => {
     if (!isMotionActive || cooldownRef.current) return;
     
-    const { x, y, z } = event.accelerationIncludingGravity || {};
+    const { z } = event.accelerationIncludingGravity || {};
     if (z === null || z === undefined) return;
     
     const zChange = Math.abs(z - lastZRef.current);
@@ -211,242 +434,10 @@ export function SalahCounter() {
     setMotionStatus('idle');
   };
 
-  // Styles
-  const styles = {
-    container: {
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-      fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-      color: '#fff',
-      padding: '20px',
-      boxSizing: 'border-box'
-    },
-    header: {
-      textAlign: 'center',
-      marginBottom: '30px'
-    },
-    title: {
-      fontSize: '32px',
-      fontWeight: '700',
-      color: '#ffd700',
-      margin: '0 0 5px 0',
-      textShadow: '0 2px 10px rgba(255, 215, 0, 0.3)'
-    },
-    subtitle: {
-      fontSize: '18px',
-      color: '#a0a0a0',
-      margin: 0
-    },
-    arabicTitle: {
-      fontSize: '42px',
-      color: '#ffd700',
-      fontFamily: 'Arial, sans-serif',
-      direction: 'rtl'
-    },
-    card: {
-      background: 'rgba(255, 255, 255, 0.08)',
-      borderRadius: '20px',
-      padding: '25px',
-      marginBottom: '20px',
-      backdropFilter: 'blur(10px)',
-      border: '1px solid rgba(255, 255, 255, 0.1)',
-      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
-    },
-    prayerButton: {
-      width: '100%',
-      padding: '20px',
-      marginBottom: '15px',
-      borderRadius: '16px',
-      border: 'none',
-      background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)',
-      color: '#fff',
-      fontSize: '22px',
-      fontWeight: '600',
-      cursor: 'pointer',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      transition: 'all 0.3s ease',
-      boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)'
-    },
-    bigButton: {
-      width: '100%',
-      padding: '25px 40px',
-      borderRadius: '20px',
-      border: 'none',
-      fontSize: '24px',
-      fontWeight: '700',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      marginTop: '15px',
-      boxShadow: '0 6px 20px rgba(0, 0, 0, 0.3)'
-    },
-    primaryButton: {
-      background: 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)',
-      color: '#fff'
-    },
-    secondaryButton: {
-      background: 'linear-gradient(135deg, #2196F3 0%, #1976D2 100%)',
-      color: '#fff'
-    },
-    warningButton: {
-      background: 'linear-gradient(135deg, #FF9800 0%, #F57C00 100%)',
-      color: '#fff'
-    },
-    dangerButton: {
-      background: 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)',
-      color: '#fff'
-    },
-    counterDisplay: {
-      textAlign: 'center',
-      padding: '40px 20px'
-    },
-    bigNumber: {
-      fontSize: '120px',
-      fontWeight: '800',
-      color: '#ffd700',
-      lineHeight: 1,
-      textShadow: '0 4px 20px rgba(255, 215, 0, 0.4)'
-    },
-    label: {
-      fontSize: '24px',
-      color: '#a0a0a0',
-      marginTop: '10px'
-    },
-    progressBar: {
-      width: '100%',
-      height: '20px',
-      background: 'rgba(255,255,255,0.1)',
-      borderRadius: '10px',
-      overflow: 'hidden',
-      marginTop: '20px'
-    },
-    progressFill: {
-      height: '100%',
-      background: 'linear-gradient(90deg, #4CAF50, #8BC34A)',
-      transition: 'width 0.5s ease',
-      borderRadius: '10px'
-    },
-    componentBadge: {
-      display: 'inline-block',
-      padding: '10px 25px',
-      borderRadius: '30px',
-      fontSize: '20px',
-      fontWeight: '600',
-      marginBottom: '20px'
-    },
-    statusIndicator: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: '15px',
-      padding: '20px',
-      borderRadius: '15px',
-      marginTop: '20px',
-      fontSize: '18px'
-    },
-    pulse: {
-      width: '20px',
-      height: '20px',
-      borderRadius: '50%',
-      animation: 'pulse 1.5s infinite'
-    },
-    backButton: {
-      background: 'transparent',
-      border: 'none',
-      color: '#ffd700',
-      fontSize: '20px',
-      cursor: 'pointer',
-      padding: '10px',
-      marginBottom: '20px'
-    },
-    grid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(2, 1fr)',
-      gap: '15px'
-    },
-    smallText: {
-      fontSize: '14px',
-      color: '#888'
-    },
-    completeOverlay: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(0, 0, 0, 0.9)',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000,
-      padding: '20px'
-    },
-    checkmark: {
-      width: '120px',
-      height: '120px',
-      borderRadius: '50%',
-      background: 'linear-gradient(135deg, #4CAF50, #8BC34A)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginBottom: '30px',
-      boxShadow: '0 0 60px rgba(76, 175, 80, 0.5)'
-    },
-    inputNumber: {
-      width: '100px',
-      padding: '15px',
-      fontSize: '28px',
-      textAlign: 'center',
-      borderRadius: '15px',
-      border: '2px solid rgba(255, 215, 0, 0.5)',
-      background: 'rgba(255, 255, 255, 0.1)',
-      color: '#fff',
-      fontWeight: '700'
-    },
-    componentList: {
-      marginTop: '15px'
-    },
-    componentItem: {
-      display: 'flex',
-      alignItems: 'center',
-      padding: '12px 15px',
-      marginBottom: '10px',
-      borderRadius: '12px',
-      background: 'rgba(255, 255, 255, 0.05)'
-    },
-    dot: {
-      width: '12px',
-      height: '12px',
-      borderRadius: '50%',
-      marginRight: '15px'
-    },
-    tapZone: {
-      background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.3) 0%, rgba(76, 175, 80, 0.1) 100%)',
-      borderRadius: '30px',
-      padding: '60px 20px',
-      marginTop: '20px',
-      textAlign: 'center',
-      border: '3px dashed rgba(76, 175, 80, 0.5)',
-      cursor: 'pointer',
-      transition: 'all 0.2s ease'
-    }
-  };
-
   // HOME SCREEN
   if (screen === 'home') {
     return (
       <div style={styles.container}>
-        <style>{`
-          @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.1); }
-          }
-          button:hover { transform: translateY(-2px); opacity: 0.95; }
-          button:active { transform: translateY(0); }
-        `}</style>
-        
         <div style={styles.header}>
           <p style={styles.arabicTitle}>بِسْمِ اللَّهِ</p>
           <h1 style={styles.title}>Salah Counter</h1>
@@ -642,21 +633,9 @@ export function SalahCounter() {
   if (screen === 'pray') {
     const component = selectedPrayer.components[currentComponent];
     const progress = ((currentRakat - 1) / totalRakats) * 100;
-    const completedRakats = Math.floor(sujoodCount / 2);
 
     return (
       <div style={styles.container}>
-        <style>{`
-          @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.2); }
-          }
-          @keyframes bounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(0.95); }
-          }
-        `}</style>
-
         {/* Complete Overlay */}
         {showComplete && (
           <div style={styles.completeOverlay}>
