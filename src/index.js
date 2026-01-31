@@ -6,5 +6,5 @@ import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
 
-// Enable PWA
-serviceWorkerRegistration.register();
+// Unregister old service worker to clear cached content
+serviceWorkerRegistration.unregister();
