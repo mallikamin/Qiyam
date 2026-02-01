@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/Qiyam/static/css/main.a07fe186.css",
+    "main.js": "/Qiyam/static/js/main.2dc3ce2b.js",
+    "static/js/239.39485487.chunk.js": "/Qiyam/static/js/239.39485487.chunk.js",
+    "index.html": "/Qiyam/index.html",
+    "main.a07fe186.css.map": "/Qiyam/static/css/main.a07fe186.css.map",
+    "main.2dc3ce2b.js.map": "/Qiyam/static/js/main.2dc3ce2b.js.map",
+    "239.39485487.chunk.js.map": "/Qiyam/static/js/239.39485487.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.a07fe186.css",
+    "static/js/main.2dc3ce2b.js"
+  ]
+}

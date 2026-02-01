@@ -1,0 +1,2 @@
+@keyframes pulse{0%,to{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.2)}}button:hover{opacity:.95;transform:translateY(-2px)}button:active{transform:translateY(0)}
+/*# sourceMappingURL=main.a07fe186.css.map*/
